@@ -27,7 +27,7 @@ func main() {
 				x[0]++
 			}
 			for k := 0; k < 9; k++ {
-				if x[k] > x[k+1]+1 || x[k] < x[k+1]-1 || y[k] > y[k+1]+1 || y[k] < y[k+1]-1 {
+				if x[k+1] < x[k]-1 || x[k+1] > x[k]+1 || y[k+1] < y[k]-1 || y[k+1] > y[k]+1 {
 					if x[k+1] < x[k] {
 						x[k+1]++
 					}
@@ -41,8 +41,8 @@ func main() {
 						y[k+1]--
 					}
 				}
-				tailpos[x[9]+y[9]<<16] = true
 			}
+			tailpos[x[9]+y[9]<<16] = true
 		}
 	}
 

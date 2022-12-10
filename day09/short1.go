@@ -26,7 +26,7 @@ func main() {
 			case 'R':
 				hx++
 			}
-			if hx > tx+1 || hx < tx-1 || hy > ty+1 || hy < ty-1 {
+			if tx < hx-1 || tx > hx+1 || ty < hy-1 || ty > hy+1 {
 				if tx < hx {
 					tx++
 				}
