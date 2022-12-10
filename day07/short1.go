@@ -1,45 +1,44 @@
 package main
 
 import (
+	"bufio"
 	"os"
 	"strconv"
 	"strings"
 )
 
-var (
-	lines   []string
-	folders = make(map[string]int)
-)
-
-func scan(folder string, from int) (next int) {
-	for i := from; i < len(lines); i++ {
-		line := lines[i]
-		switch {
-		case line[:7] == "$ cd ..": //return at line i
-			return i
-		case line[:4] == "$ cd": //read subfolder
-			subfolder := folder + "/" + line[5:]
-			i = scan(subfolder, i+2)
-			folders[folder] += folders[subfolder]
-		case line[0] >= '0' && line[0] <= '9': // add file size
-			s, _ := strconv.Atoi(line[:strings.IndexByte(line, ' ')])
-			folders[folder] += s
-		}
-	}
-	return len(lines)
-}
-
 func main() {
-	data, _ := os.ReadFile(os.Args[1])
-	lines = strings.Split(strings.TrimSpace(string(data)), "\n")
+	file, _ := os.Open(os.Args[1])
+	defer file.Close()
+	data := bufio.NewScanner(file)
 
-	scan("/", 2)
+	var size = make(map[string]int)
 
-	size := 0
-	for _, s := range folders {
-		if s <= 100000 {
-			size += s
+	var scan func(string)
+	scan = func(folder string) {
+		for data.Scan() {
+			line := data.Text()
+			switch {
+			case strings.HasPrefix(line, "$ cd .."):
+				return
+			case strings.HasPrefix(line, "$ cd"):
+				subfolder := folder + "/" + line[5:]
+				scan(subfolder)
+				size[folder] += size[subfolder]
+			case line[0] >= '0' && line[0] <= '9':
+				s, _ := strconv.Atoi(strings.Fields(line)[0])
+				size[folder] += s
+			}
 		}
 	}
-	println(size)
+
+	scan("/")
+
+	sum := 0
+	for _, s := range size {
+		if s <= 100000 {
+			sum += s
+		}
+	}
+	println(sum)
 }
