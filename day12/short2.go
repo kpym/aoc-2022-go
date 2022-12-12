@@ -8,31 +8,32 @@ import (
 func main() {
 	data, _ := os.ReadFile(os.Args[1])
 	lines := bytes.Split(bytes.TrimSpace(data), []byte{'\n'})
-	nx := len(lines[0])
-	ny := len(lines)
+	nx, ny := len(lines[0]), len(lines)
 
+	var ex, ey int
 	mp := make([][]int, ny)
-	for y := range mp {
+	for y, line := range lines {
 		mp[y] = make([]int, nx)
-	}
-
-	find := func(s, t byte) (x, y int) {
-		for y, line := range lines {
-			for x, c := range line {
-				if c == s {
-					lines[y][x] = t
-					return x, y
-				}
+		for x, c := range line {
+			if c == 'S' {
+				lines[y][x] = 'a'
 			}
+			if c == 'E' {
+				lines[y][x] = 'z'
+				ex, ey = x, y
+			}
+			mp[y][x] = nx * ny
 		}
-		return -1, -1
 	}
-	ex, ey := find('E', 'z')
-	find('S', 'a')
 
+	min := nx * ny
 	var explore func(x, y, cost int)
 	explore = func(x, y, cost int) {
-		if (x == ex && y == ey && cost > 0) || (mp[y][x] > 0 && mp[y][x] <= cost) {
+		if cost >= min || cost >= mp[y][x] {
+			return
+		}
+		if lines[y][x] == 'a' {
+			min = cost
 			return
 		}
 		mp[y][x] = cost
@@ -50,17 +51,6 @@ func main() {
 		}
 	}
 	explore(ex, ey, 0)
-
-	min := nx * ny
-	for y, line := range lines {
-		for x, c := range line {
-			if c == 'a' {
-				if mp[y][x] > 0 && mp[y][x] < min {
-					min = mp[y][x]
-				}
-			}
-		}
-	}
 
 	println(min)
 }

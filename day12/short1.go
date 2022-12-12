@@ -8,31 +8,28 @@ import (
 func main() {
 	data, _ := os.ReadFile(os.Args[1])
 	lines := bytes.Split(bytes.TrimSpace(data), []byte{'\n'})
-	nx := len(lines[0])
-	ny := len(lines)
+	nx, ny := len(lines[0]), len(lines)
 
+	var ex, ey, sx, sy int
 	mp := make([][]int, ny)
-	for y := range mp {
+	for y, line := range lines {
 		mp[y] = make([]int, nx)
-	}
-
-	find := func(s, t byte) (x, y int) {
-		for y, line := range lines {
-			for x, c := range line {
-				if c == s {
-					lines[y][x] = t
-					return x, y
-				}
+		for x := range line {
+			if lines[y][x] == 'S' {
+				lines[y][x] = 'a'
+				sx, sy = x, y
 			}
+			if lines[y][x] == 'E' {
+				lines[y][x] = 'z'
+				ex, ey = x, y
+			}
+			mp[y][x] = nx * ny
 		}
-		return -1, -1
 	}
-	ex, ey := find('E', 'z')
-	sx, sy := find('S', 'a')
 
 	var explore func(x, y, cost int)
 	explore = func(x, y, cost int) {
-		if (x == ex && y == ey && cost > 0) || (mp[y][x] > 0 && mp[y][x] <= cost) {
+		if mp[y][x] <= cost {
 			return
 		}
 		mp[y][x] = cost
